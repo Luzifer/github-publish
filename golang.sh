@@ -1,7 +1,7 @@
 #!/bin/bash
 
 curl -sL https://raw.githubusercontent.com/Luzifer/github-publish/master/SHA256SUMS | \
-  grep "golang.sh" | shasum -a 256 -c || exit 2
+  grep "golang.sh" | sha256sum -c || exit 2
 
 VERSION=$(git describe --tags --exact-match)
 PWD=$(pwd)
