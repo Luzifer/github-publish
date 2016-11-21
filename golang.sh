@@ -7,7 +7,7 @@ VERSION=$(git describe --tags --exact-match)
 PWD=$(pwd)
 godir=${PWD/${GOPATH}\/src\/}
 REPO=${REPO:-$(echo ${godir} | cut -d '/' -f 3)}
-USER=${USER:-$(echo ${godir} | cut -d '/' -f 3)}
+USER=${USER:-$(echo ${godir} | cut -d '/' -f 2)}
 ARCHS=${ARCHS:-"linux/amd64 linux/arm darwin/amd64 windows/amd64"}
 
 set -e
