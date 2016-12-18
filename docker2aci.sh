@@ -41,8 +41,8 @@ set -x
 curl -sL https://github.com/appc/docker2aci/releases/download/v0.14.0/docker2aci-v0.14.0.tar.gz | \
   tar -xvz -f - --wildcards --strip-components=1 '*/docker2aci'
 
-docker build -t "${GHUSER}/${REPO}:${VERSION}" ${DOCKERFILE_PATH}
-docker save -o build.docker "${GHUSER}/${REPO}:${VERSION}"
+docker build -t ${DOCKER_IMAGE} ${DOCKERFILE_PATH}
+docker save -o build.docker ${DOCKER_IMAGE}
 
 ./docker2aci build.docker
 
