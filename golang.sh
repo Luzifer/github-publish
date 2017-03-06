@@ -3,16 +3,31 @@
 curl -sL https://raw.githubusercontent.com/Luzifer/github-publish/master/SHA256SUMS | \
   grep "golang.sh" | sha256sum -c || exit 2
 
-VERSION=$(git describe --tags --exact-match)
+VERSION=$(git describe --tags --exact-match || echo "dev")
 PWD=$(pwd)
 godir=${PWD/${GOPATH}\/src\/}
 REPO=${REPO:-$(echo ${godir} | cut -d '/' -f 3)}
 GHUSER=${GHUSER:-$(echo ${godir} | cut -d '/' -f 2)}
 ARCHS=${ARCHS:-"linux/amd64 linux/arm darwin/amd64 windows/amd64"}
 
-set -e
+set -ex
 
-if [ -z "${VERSION}" ]; then
+# Retrieve dependencies
+go get github.com/aktau/github-release
+go get github.com/mitchellh/gox
+
+# Test code (used in PR tests, branch tests, and builds)
+go vet .
+go test .
+
+# Compile program
+gox -ldflags="-X main.version=${VERSION}" -osarch="${ARCHS}"
+
+# Publish builds to Github
+
+set +x
+
+if ( test "${VERSION}" == "dev" ); then
   echo "No tag present, stopping build now."
   exit 0
 fi
@@ -24,12 +39,6 @@ fi
 
 set -x
 
-# Retrieve dependencies
-go get github.com/aktau/github-release
-go get github.com/mitchellh/gox
-
-# Compile program
-gox -ldflags="-X main.version=${VERSION}" -osarch="${ARCHS}"
 # Generate SHASUMs
 sha256sum ${REPO}_* > SHA256SUMS
 
