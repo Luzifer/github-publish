@@ -3,7 +3,7 @@
 curl -sL https://raw.githubusercontent.com/Luzifer/github-publish/master/SHA256SUMS | \
   grep "golang.sh" | sha256sum -c || exit 2
 
-VERSION=$(git describe --tags --exact-match || echo "dev")
+VERSION=$(git describe --tags --exact-match || echo "ghpublish__notags")
 PWD=$(pwd)
 godir=${PWD/${GOPATH}\/src\/}
 REPO=${REPO:-$(echo ${godir} | cut -d '/' -f 3)}
@@ -28,7 +28,7 @@ gox -ldflags="-X main.version=${VERSION}" -osarch="${ARCHS}"
 
 set +x
 
-if ( test "${VERSION}" == "dev" ); then
+if ( test "${VERSION}" == "ghpublish__notags" ); then
   echo "No tag present, stopping build now."
   exit 0
 fi
