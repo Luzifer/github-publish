@@ -9,6 +9,7 @@ godir=${PWD/${GOPATH}\/src\/}
 REPO=${REPO:-$(echo ${godir} | cut -d '/' -f 3)}
 GHUSER=${GHUSER:-$(echo ${godir} | cut -d '/' -f 2)}
 ARCHS=${ARCHS:-"linux/amd64 linux/arm darwin/amd64 windows/amd64"}
+DEPLOYMENT_TAG=${DEPLOYMENT_TAG:-${VERSION}}
 
 set -ex
 
@@ -43,9 +44,9 @@ set -x
 sha256sum ${REPO}_* > SHA256SUMS
 
 # Create a drafted release
-github-release release --user ${GHUSER} --repo ${REPO} --tag ${VERSION} --name ${VERSION} --draft || true
+github-release release --user ${GHUSER} --repo ${REPO} --tag ${DEPLOYMENT_TAG} --name ${DEPLOYMENT_TAG} --draft || true
 
 # Upload build assets
 for file in ${REPO}_* SHA256SUMS; do
-  github-release upload --user ${GHUSER} --repo ${REPO} --tag ${VERSION} --name ${file} --file ${file}
+  github-release upload --user ${GHUSER} --repo ${REPO} --tag ${DEPLOYMENT_TAG} --name ${file} --file ${file}
 done
