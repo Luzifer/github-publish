@@ -50,3 +50,7 @@ github-release release --user ${GHUSER} --repo ${REPO} --tag ${DEPLOYMENT_TAG} -
 for file in ${REPO}_* SHA256SUMS; do
   github-release upload --user ${GHUSER} --repo ${REPO} --tag ${DEPLOYMENT_TAG} --name ${file} --file ${file}
 done
+
+echo "\n\n=== Recorded checksums ===\n\n"
+
+cat SHA256SUMS
