@@ -44,7 +44,15 @@ set -x
 sha256sum ${REPO}_* > SHA256SUMS
 
 # Create a drafted release
-github-release release --user ${GHUSER} --repo ${REPO} --tag ${DEPLOYMENT_TAG} --name ${DEPLOYMENT_TAG} --draft || true
+DESC="${VERSION}"
+if [ -f History.md ]; then
+  sv=$(echo ${VERSION} | sed 's/^v//')
+  DESC=$(awk "/# ${sv}/{flag=1;next} /# /{flag=0} flag" History.md | head -n -1 | tail -n +2)
+fi
+
+github-release release --user ${GHUSER} --repo ${REPO} \
+                       --tag ${DEPLOYMENT_TAG} --name ${DEPLOYMENT_TAG} \
+                       --description ${DESC} --draft || true
 
 # Upload build assets
 for file in ${REPO}_* SHA256SUMS; do
