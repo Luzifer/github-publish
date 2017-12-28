@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euxo pipefail
+set -euo pipefail
 
 ( which apk 2>&1 1>/dev/null ) && apk add --update zip
 ( which apt-get 2>&1 1>/dev/null ) && apt-get install -y zip
