@@ -47,9 +47,9 @@ sha256sum ${REPO}_* > SHA256SUMS
 
 for file in ${REPO}_*; do
   if [[ ${file} == *linux* ]]; then
-    tar -czf "${file}.tar.gz" "${file}"
+    tar -czf "${file%%.*}.tar.gz" "${file}"
   else
-    zip "${file}.zip" "${file}"
+    zip "${file%%.*}.zip" "${file}"
   fi
   rm "${file}"
 done
