@@ -38,10 +38,22 @@ if [ -z "${GITHUB_TOKEN}" ]; then
   exit 1
 fi
 
+# Generate binary SHASUMs
+sha256sum ${REPO}_* > SHA256SUMS
+
+for file in ${REPO}_*; do
+  if [[ ${file} == *linux* ]]; then
+    tar -czf "${file}.tar.gz" "${file}"
+  else
+    zip "${file}.zip" "${file}"
+  fi
+  rm "${file}"
+done
+
 set -x
 
-# Generate SHASUMs
-sha256sum ${REPO}_* > SHA256SUMS
+# Generate archive SHASUMs
+sha256sum ${REPO}_* >> SHA256SUMS
 
 # Create a drafted release
 github-release release --user ${GHUSER} --repo ${REPO} --tag ${DEPLOYMENT_TAG} --name ${DEPLOYMENT_TAG} --draft || true
