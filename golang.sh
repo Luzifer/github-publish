@@ -1,4 +1,8 @@
 #!/bin/bash
+set -euxo pipefail
+
+( which apk 2>&1 1>/dev/null ) && apk add --update zip
+( which apt-get 2>&1 1>/dev/null ) && apt-get install -y zip
 
 curl -sL https://raw.githubusercontent.com/Luzifer/github-publish/master/SHA256SUMS | \
   grep "golang.sh" | sha256sum -c || exit 2
