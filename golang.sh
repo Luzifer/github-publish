@@ -1,11 +1,17 @@
 #!/bin/bash
 set -euo pipefail
 
-( which apk 2>&1 1>/dev/null ) && apk add --update zip
-( which apt-get 2>&1 1>/dev/null ) && apt-get install -y zip
-
 curl -sL https://raw.githubusercontent.com/Luzifer/github-publish/master/SHA256SUMS | \
   grep "golang.sh" | sha256sum -c || exit 2
+
+( which zip 2>&1 1>/dev/null ) || {
+  ( which apk 2>&1 1>/dev/null ) && apk add --update zip
+  ( which apt-get 2>&1 1>/dev/null ) && apt-get install -y zip
+}
+
+function step {
+  echo "===> $@..."
+}
 
 VERSION=$(git describe --tags --exact-match || echo "ghpublish__notags")
 PWD=$(pwd)
@@ -14,23 +20,48 @@ REPO=${REPO:-$(echo ${godir} | cut -d '/' -f 3)}
 GHUSER=${GHUSER:-$(echo ${godir} | cut -d '/' -f 2)}
 ARCHS=${ARCHS:-"linux/amd64 linux/arm darwin/amd64 windows/amd64"}
 DEPLOYMENT_TAG=${DEPLOYMENT_TAG:-${VERSION}}
+PACKAGES=${PACKAGES:-$(echo ${godir} | cut -d '/' -f 1-3)}
+BUILD_DIR=${BUILD_DIR:-.build}
 
-set -ex
-
-# Retrieve dependencies
+step Retrieve dependencies
 go get github.com/aktau/github-release
 go get github.com/mitchellh/gox
 
-# Test code (used in PR tests, branch tests, and builds)
-go vet .
-go test .
+step Test code
+go vet ${PACKAGES}
+go test ${PACKAGES}
 
-# Compile program
-gox -ldflags="-X main.version=${VERSION}" -osarch="${ARCHS}"
+step Compile program
+mkdir ${BUILD_DIR}
+gox -ldflags="-X main.version=${VERSION}" -osarch="${ARCHS}" \
+  -output="${BUILD_DIR}/{{.Dir}}_{{.OS}}_{{.Arch}}"\
+  ${PACKAGES}
 
-# Publish builds to Github
+step Generate binary SHASUMs
+cd ${BUILD_DIR}
+sha256sum * > SHA256SUMS
 
-set +x
+step Packing archives
+for file in *; do
+  if [ "${file}" = "SHA256SUMS" ]; then
+    continue
+  fi
+
+  if [[ ${file} == *linux* ]]; then
+    tar -czf "${file%%.*}.tar.gz" "${file}"
+  else
+    zip "${file%%.*}.zip" "${file}"
+  fi
+
+  rm "${file}"
+done
+
+step Generate archive SHASUMs
+sha256sum * >> SHA256SUMS
+grep -v 'SHA256SUMS' SHA256SUMS > SHA256SUMS.tmp
+mv SHA256SUMS.tmp SHA256SUMS
+
+step Publish builds to Github
 
 if ( test "${VERSION}" == "ghpublish__notags" ); then
   echo "No tag present, stopping build now."
@@ -42,30 +73,16 @@ if [ -z "${GITHUB_TOKEN}" ]; then
   exit 1
 fi
 
-# Generate binary SHASUMs
-sha256sum ${REPO}_* > SHA256SUMS
-
-for file in ${REPO}_*; do
-  if [[ ${file} == *linux* ]]; then
-    tar -czf "${file%%.*}.tar.gz" "${file}"
-  else
-    zip "${file%%.*}.zip" "${file}"
-  fi
-  rm "${file}"
-done
-
-set -x
-
-# Generate archive SHASUMs
-sha256sum ${REPO}_* >> SHA256SUMS
-
-# Create a drafted release
+step Create a drafted release
 github-release release --user ${GHUSER} --repo ${REPO} --tag ${DEPLOYMENT_TAG} --name ${DEPLOYMENT_TAG} --draft || true
 
-# Upload build assets
+step Upload build assets
 for file in ${REPO}_* SHA256SUMS; do
   github-release upload --user ${GHUSER} --repo ${REPO} --tag ${DEPLOYMENT_TAG} --name ${file} --file ${file}
 done
+
+cd -
+rm -rf ${BUILD_DIR}
 
 echo -e "\n\n=== Recorded checksums ==="
 
