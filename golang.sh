@@ -77,7 +77,7 @@ step Create a drafted release
 github-release release --user ${GHUSER} --repo ${REPO} --tag ${DEPLOYMENT_TAG} --name ${DEPLOYMENT_TAG} --draft || true
 
 step Upload build assets
-for file in * SHA256SUMS; do
+for file in *; do
   echo "- ${file}"
   github-release upload --user ${GHUSER} --repo ${REPO} --tag ${DEPLOYMENT_TAG} --name ${file} --file ${file}
 done
