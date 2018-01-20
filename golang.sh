@@ -78,12 +78,14 @@ github-release release --user ${GHUSER} --repo ${REPO} --tag ${DEPLOYMENT_TAG} -
 
 step Upload build assets
 for file in ${REPO}_* SHA256SUMS; do
+  echo "- ${file}"
   github-release upload --user ${GHUSER} --repo ${REPO} --tag ${DEPLOYMENT_TAG} --name ${file} --file ${file}
 done
 
+echo -e "\n\n=== Recorded checksums ==="
+cat SHA256SUMS
+
+step Cleanup build directory
 cd -
 rm -rf ${BUILD_DIR}
 
-echo -e "\n\n=== Recorded checksums ==="
-
-cat SHA256SUMS
