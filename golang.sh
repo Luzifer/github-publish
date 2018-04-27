@@ -23,6 +23,8 @@ DEPLOYMENT_TAG=${DEPLOYMENT_TAG:-${VERSION}}
 PACKAGES=${PACKAGES:-$(echo ${godir} | cut -d '/' -f 1-3)}
 BUILD_DIR=${BUILD_DIR:-.build}
 
+go version
+
 step Retrieve dependencies
 go get github.com/aktau/github-release
 go get github.com/mitchellh/gox
