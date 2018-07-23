@@ -6,7 +6,7 @@ curl -sL https://raw.githubusercontent.com/Luzifer/github-publish/master/SHA256S
 
 (which zip 2>&1 1>/dev/null) || {
 	(which apk 2>&1 1>/dev/null) && apk add --update zip
-	(which apt-get 2>&1 1>/dev/null) && apt-get install -y zip
+	(which apt-get 2>&1 1>/dev/null) && apt-get update && apt-get install -y zip
 }
 
 function step() {
