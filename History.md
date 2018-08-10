@@ -1,3 +1,7 @@
+# 1.3.0 / 2018-08-10
+
+  * Fix: Flag parser of github-release behaves different as expected
+
 # 1.2.1 / 2018-08-10
 
   * Fix: Forgot to update script checksum
