@@ -22,6 +22,7 @@ ARCHS=${ARCHS:-"linux/amd64 linux/arm darwin/amd64 windows/amd64"}
 DEPLOYMENT_TAG=${DEPLOYMENT_TAG:-${VERSION}}
 PACKAGES=${PACKAGES:-$(echo ${godir} | cut -d '/' -f 1-3)}
 BUILD_DIR=${BUILD_DIR:-.build}
+DRAFT=${DRAFT:-true}
 
 go version
 
@@ -79,7 +80,7 @@ if [ -z "${GITHUB_TOKEN}" ]; then
 fi
 
 step Create a drafted release
-github-release release --user ${GHUSER} --repo ${REPO} --tag ${DEPLOYMENT_TAG} --name ${DEPLOYMENT_TAG} --draft || true
+github-release release --user ${GHUSER} --repo ${REPO} --tag ${DEPLOYMENT_TAG} --name ${DEPLOYMENT_TAG} --draft=${DRAFT} || true
 
 step Upload build assets
 for file in *; do
