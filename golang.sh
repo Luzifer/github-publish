@@ -26,28 +26,28 @@ DRAFT=${DRAFT:-true}
 
 go version
 
-step Retrieve dependencies
+step "Retrieve dependencies"
 go get github.com/aktau/github-release
 go get github.com/mitchellh/gox
 
-step Test code
+step "Test code"
 go vet ${PACKAGES}
 go test ${PACKAGES}
 
-step Cleanup build directory if present
+step "Cleanup build directory if present"
 rm -rf ${BUILD_DIR}
 
-step Compile program
+step "Compile program"
 mkdir ${BUILD_DIR}
 gox -ldflags="-X main.version=${VERSION}" -osarch="${ARCHS}" \
 	-output="${BUILD_DIR}/{{.Dir}}_{{.OS}}_{{.Arch}}" \
 	${PACKAGES}
 
-step Generate binary SHASUMs
+step "Generate binary SHASUMs"
 cd ${BUILD_DIR}
 sha256sum * >SHA256SUMS
 
-step Packing archives
+step "Packing archives"
 for file in *; do
 	if [ "${file}" = "SHA256SUMS" ]; then
 		continue
@@ -62,12 +62,12 @@ for file in *; do
 	rm "${file}"
 done
 
-step Generate archive SHASUMs
+step "Generate archive SHASUMs"
 sha256sum * >>SHA256SUMS
 grep -v 'SHA256SUMS' SHA256SUMS >SHA256SUMS.tmp
 mv SHA256SUMS.tmp SHA256SUMS
 
-step Publish builds to Github
+step "Publish builds to Github"
 
 if (test "${VERSION}" == "ghpublish__notags"); then
 	echo "No tag present, stopping build now."
@@ -79,10 +79,15 @@ if [ -z "${GITHUB_TOKEN}" ]; then
 	exit 1
 fi
 
-step Create a drafted release
-github-release release --user ${GHUSER} --repo ${REPO} --tag ${DEPLOYMENT_TAG} --name ${DEPLOYMENT_TAG} --draft=${DRAFT} || true
+if [[ "${DRAFT}" == "true" ]]; then
+	step "Create a drafted release"
+	github-release release --user ${GHUSER} --repo ${REPO} --tag ${DEPLOYMENT_TAG} --name ${DEPLOYMENT_TAG} --draft || true
+else
+	step "Create a published release"
+	github-release release --user ${GHUSER} --repo ${REPO} --tag ${DEPLOYMENT_TAG} --name ${DEPLOYMENT_TAG} || true
+fi
 
-step Upload build assets
+step "Upload build assets"
 for file in *; do
 	echo "- ${file}"
 	github-release upload --user ${GHUSER} --repo ${REPO} --tag ${DEPLOYMENT_TAG} --name ${file} --file ${file}
