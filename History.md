@@ -1,3 +1,7 @@
+# 1.4.0 / 2019-02-04
+
+  * Add flag to skip upload (#2)
+
 # 1.3.0 / 2018-08-10
 
   * Fix: Flag parser of github-release behaves different as expected
