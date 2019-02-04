@@ -23,6 +23,7 @@ DEPLOYMENT_TAG=${DEPLOYMENT_TAG:-${VERSION}}
 PACKAGES=${PACKAGES:-$(echo ${godir} | cut -d '/' -f 1-3)}
 BUILD_DIR=${BUILD_DIR:-.build}
 DRAFT=${DRAFT:-true}
+FORCE_SKIP_UPLOAD=${FORCE_SKIP_UPLOAD:-false}
 
 go version
 
@@ -67,19 +68,27 @@ sha256sum * >>SHA256SUMS
 grep -v 'SHA256SUMS' SHA256SUMS >SHA256SUMS.tmp
 mv SHA256SUMS.tmp SHA256SUMS
 
+echo -e "\n\n=== Recorded checksums ==="
+cat SHA256SUMS
+
+if [[ ${FORCE_SKIP_UPLOAD} == "true" ]]; then
+	echo "Upload is skipped, stopping build now."
+	exit 0
+fi
+
 step "Publish builds to Github"
 
-if (test "${VERSION}" == "ghpublish__notags"); then
+if [[ ${VERSION} == "ghpublish__notags" ]]; then
 	echo "No tag present, stopping build now."
 	exit 0
 fi
 
 if [ -z "${GITHUB_TOKEN}" ]; then
-	echo "Please set \$GITHUB_TOKEN environment variable"
+	echo 'Please set $GITHUB_TOKEN environment variable'
 	exit 1
 fi
 
-if [[ "${DRAFT}" == "true" ]]; then
+if [[ ${DRAFT} == "true" ]]; then
 	step "Create a drafted release"
 	github-release release --user ${GHUSER} --repo ${REPO} --tag ${DEPLOYMENT_TAG} --name ${DEPLOYMENT_TAG} --draft || true
 else
@@ -92,8 +101,5 @@ for file in *; do
 	echo "- ${file}"
 	github-release upload --user ${GHUSER} --repo ${REPO} --tag ${DEPLOYMENT_TAG} --name ${file} --file ${file}
 done
-
-echo -e "\n\n=== Recorded checksums ==="
-cat SHA256SUMS
 
 cd -
