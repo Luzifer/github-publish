@@ -1,3 +1,7 @@
+# 1.5.0 / 2019-02-05
+
+  * Use a proper version even when not publishing (#3)
+
 # 1.4.0 / 2019-02-04
 
   * Add flag to skip upload (#2)
