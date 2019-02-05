@@ -13,7 +13,7 @@ function step() {
 	echo "===> $@..."
 }
 
-VERSION=$(git describe --tags || git rev-parse --short HEAD || echo "dev")
+VERSION=$(git describe --tags --always || echo "dev")
 PWD=$(pwd)
 godir=${PWD/${GOPATH}\/src\//}
 REPO=${REPO:-$(echo ${godir} | cut -d '/' -f 3)}
