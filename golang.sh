@@ -13,7 +13,7 @@ function step() {
 	echo "===> $@..."
 }
 
-VERSION=$(git describe --tags --exact-match || echo "ghpublish__notags")
+VERSION=$(git describe --tags --always || echo "dev")
 PWD=$(pwd)
 godir=${PWD/${GOPATH}\/src\//}
 REPO=${REPO:-$(echo ${godir} | cut -d '/' -f 3)}
@@ -78,7 +78,7 @@ fi
 
 step "Publish builds to Github"
 
-if [[ ${VERSION} == "ghpublish__notags" ]]; then
+if ! git describe --tags --exact-match; then
 	echo "No tag present, stopping build now."
 	exit 0
 fi
