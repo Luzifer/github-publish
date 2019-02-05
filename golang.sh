@@ -78,7 +78,7 @@ fi
 
 step "Publish builds to Github"
 
-if ! (git describe --tags --exact-match); then
+if ! git describe --tags --exact-match; then
 	echo "No tag present, stopping build now."
 	exit 0
 fi
