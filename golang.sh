@@ -22,9 +22,9 @@ PWD=$(pwd)
 godir=${PWD/${GOPATH}\/src\//}
 REPO=${REPO:-$(echo ${godir} | cut -d '/' -f 3)}
 GHUSER=${GHUSER:-$(echo ${godir} | cut -d '/' -f 2)}
-ARCHS=${ARCHS:-"linux/amd64 linux/arm darwin/amd64 windows/amd64"}
+ARCHS=(${ARCHS:-linux/amd64 linux/arm darwin/amd64 windows/amd64})
 DEPLOYMENT_TAG=${DEPLOYMENT_TAG:-${VERSION}}
-PACKAGES=${PACKAGES:-$(echo ${godir} | cut -d '/' -f 1-3)}
+PACKAGES=(${PACKAGES:-$(echo ${godir} | cut -d '/' -f 1-3)})
 BUILD_DIR=${BUILD_DIR:-.build}
 DRAFT=${DRAFT:-true}
 FORCE_SKIP_UPLOAD=${FORCE_SKIP_UPLOAD:-false}
@@ -58,8 +58,8 @@ build_params+=(
 	-ldflags="-X main.version=${VERSION}"
 )
 
-for package in "${PACKAGES}"; do
-	for osarch in "${ARCHS}"; do
+for package in "${PACKAGES[@]}"; do
+	for osarch in "${ARCHS[@]}"; do
 		export GOOS=${osarch%%/*}
 		export GOARCH=${osarch##*/}
 
