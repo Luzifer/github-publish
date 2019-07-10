@@ -24,6 +24,7 @@ PACKAGES=${PACKAGES:-$(echo ${godir} | cut -d '/' -f 1-3)}
 BUILD_DIR=${BUILD_DIR:-.build}
 DRAFT=${DRAFT:-true}
 FORCE_SKIP_UPLOAD=${FORCE_SKIP_UPLOAD:-false}
+MOD_MODE=${MOD_MODE:-}
 
 go version
 
@@ -40,8 +41,19 @@ rm -rf ${BUILD_DIR}
 
 step "Compile program"
 mkdir ${BUILD_DIR}
-gox -ldflags="-X main.version=${VERSION}" -osarch="${ARCHS}" \
-	-output="${BUILD_DIR}/{{.Dir}}_{{.OS}}_{{.Arch}}" \
+
+build_params=(
+	-ldflags="-X main.version=${VERSION}"
+	-osarch="${ARCHS}"
+	-output="${BUILD_DIR}/{{.Dir}}_{{.OS}}_{{.Arch}}"
+)
+
+if [[ -n ${MOD_MODE} ]]; then
+	build_params+=(-mod="${MOD_MODE}")
+fi
+
+gox \
+	"${build_params[@]}" \
 	${PACKAGES}
 
 step "Generate binary SHASUMs"
