@@ -35,8 +35,14 @@ go get github.com/mitchellh/gox
 popd
 
 step "Test code"
-go vet ${PACKAGES}
-go test ${PACKAGES}
+test_params=()
+
+if [[ -n ${MOD_MODE} ]]; then
+	test_params+=(-mod="${MOD_MODE}")
+fi
+
+go vet "${test_params[@]}" ${PACKAGES}
+go test "${test_params[@]}" ${PACKAGES}
 
 step "Cleanup build directory if present"
 rm -rf ${BUILD_DIR}
