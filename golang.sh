@@ -63,8 +63,8 @@ for package in "${PACKAGES}"; do
 		export GOOS=${osarch%%/*}
 		export GOARCH=${osarch##*/}
 
-		[[ ${GOOS} == "windows" ]] && export SUFFIX=".exe" || export SUFFIX=""
-		outfile="${BUILD_DIR}/${PWD##*/}_${GOOS}_${GOARCH}${SUFFIX}"
+		[[ ${GOOS} == "windows" ]] && suffix=".exe" || suffix=""
+		outfile="${BUILD_DIR}/${PWD##*/}_${GOOS}_${GOARCH}${suffix}"
 
 		substep "Building for ${osarch} into ${outfile}"
 
