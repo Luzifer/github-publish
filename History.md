@@ -1,3 +1,9 @@
+# 1.6.0 / 2019-07-10
+
+  * Replace gox with simple loop (#5)
+  * Pull dependencies outside working dir
+  * Add mod-mode support for Go 1.12+ (#4)
+
 # 1.5.0 / 2019-02-05
 
   * Use a proper version even when not publishing (#3)
