@@ -49,7 +49,7 @@ rm -rf ${BUILD_DIR}
 step "Compile program"
 mkdir ${BUILD_DIR}
 
-build_params=(${go_params})
+build_params=("${go_params[@]}")
 build_params+=(
 	-ldflags="-X main.version=${VERSION}"
 )
