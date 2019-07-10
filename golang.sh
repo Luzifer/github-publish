@@ -10,7 +10,11 @@ curl -sL https://raw.githubusercontent.com/Luzifer/github-publish/master/SHA256S
 }
 
 function step() {
-	echo "===> $@..."
+	echo "===> $@..." >&2
+}
+
+function substep() {
+	echo "======> $@..." >&2
 }
 
 VERSION=$(git describe --tags --always || echo "dev")
@@ -18,9 +22,9 @@ PWD=$(pwd)
 godir=${PWD/${GOPATH}\/src\//}
 REPO=${REPO:-$(echo ${godir} | cut -d '/' -f 3)}
 GHUSER=${GHUSER:-$(echo ${godir} | cut -d '/' -f 2)}
-ARCHS=${ARCHS:-"linux/amd64 linux/arm darwin/amd64 windows/amd64"}
+ARCHS=(${ARCHS:-linux/amd64 linux/arm darwin/amd64 windows/amd64})
 DEPLOYMENT_TAG=${DEPLOYMENT_TAG:-${VERSION}}
-PACKAGES=${PACKAGES:-$(echo ${godir} | cut -d '/' -f 1-3)}
+PACKAGES=(${PACKAGES:-$(echo ${godir} | cut -d '/' -f 1-3)})
 BUILD_DIR=${BUILD_DIR:-.build}
 DRAFT=${DRAFT:-true}
 FORCE_SKIP_UPLOAD=${FORCE_SKIP_UPLOAD:-false}
@@ -31,18 +35,17 @@ go version
 step "Retrieve dependencies"
 pushd ${GOPATH}
 go get github.com/aktau/github-release
-go get github.com/Luzifer/gox
 popd
 
 step "Test code"
-test_params=()
+go_params=()
 
 if [[ -n ${MOD_MODE} ]]; then
-	test_params+=(-mod="${MOD_MODE}")
+	go_params+=(-mod="${MOD_MODE}")
 fi
 
-go vet "${test_params[@]}" ${PACKAGES}
-go test "${test_params[@]}" ${PACKAGES}
+go vet "${go_params[@]}" ${PACKAGES}
+go test "${go_params[@]}" ${PACKAGES}
 
 step "Cleanup build directory if present"
 rm -rf ${BUILD_DIR}
@@ -50,19 +53,27 @@ rm -rf ${BUILD_DIR}
 step "Compile program"
 mkdir ${BUILD_DIR}
 
-build_params=(
+build_params=("${go_params[@]}")
+build_params+=(
 	-ldflags="-X main.version=${VERSION}"
-	-osarch="${ARCHS}"
-	-output="${BUILD_DIR}/{{.Dir}}_{{.OS}}_{{.Arch}}"
 )
 
-if [[ -n ${MOD_MODE} ]]; then
-	build_params+=(-mod="${MOD_MODE}")
-fi
+for package in "${PACKAGES[@]}"; do
+	for osarch in "${ARCHS[@]}"; do
+		export GOOS=${osarch%%/*}
+		export GOARCH=${osarch##*/}
 
-gox \
-	"${build_params[@]}" \
-	${PACKAGES}
+		[[ ${GOOS} == "windows" ]] && suffix=".exe" || suffix=""
+		outfile="${BUILD_DIR}/${package##*/}_${GOOS}_${GOARCH}${suffix}"
+
+		substep "Building for ${osarch} into ${outfile}"
+
+		go build \
+			-o "${outfile}" \
+			"${build_params[@]}" \
+			"${package}"
+	done
+done
 
 step "Generate binary SHASUMs"
 cd ${BUILD_DIR}
