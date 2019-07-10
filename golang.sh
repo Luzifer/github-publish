@@ -13,18 +13,18 @@ function step() {
 	echo "===> $@..."
 }
 
+VERSION=$(git describe --tags --always || echo "dev")
+PWD=$(pwd)
+godir=${PWD/${GOPATH}\/src\//}
+REPO=${REPO:-$(echo ${godir} | cut -d '/' -f 3)}
+GHUSER=${GHUSER:-$(echo ${godir} | cut -d '/' -f 2)}
 ARCHS=${ARCHS:-"linux/amd64 linux/arm darwin/amd64 windows/amd64"}
-BUILD_DIR=${BUILD_DIR:-.build}
 DEPLOYMENT_TAG=${DEPLOYMENT_TAG:-${VERSION}}
+PACKAGES=${PACKAGES:-$(echo ${godir} | cut -d '/' -f 1-3)}
+BUILD_DIR=${BUILD_DIR:-.build}
 DRAFT=${DRAFT:-true}
 FORCE_SKIP_UPLOAD=${FORCE_SKIP_UPLOAD:-false}
-GHUSER=${GHUSER:-$(echo ${godir} | cut -d '/' -f 2)}
-godir=${PWD/${GOPATH}\/src\//}
 MOD_MODE=${MOD_MODE:-}
-PACKAGES=${PACKAGES:-$(echo ${godir} | cut -d '/' -f 1-3)}
-PWD=$(pwd)
-REPO=${REPO:-$(echo ${godir} | cut -d '/' -f 3)}
-VERSION=$(git describe --tags --always || echo "dev")
 
 go version
 
