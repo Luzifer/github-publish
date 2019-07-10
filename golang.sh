@@ -13,6 +13,10 @@ function step() {
 	echo "===> $@..." >&2
 }
 
+function substep() {
+	echo "======> $@..." >&2
+}
+
 VERSION=$(git describe --tags --always || echo "dev")
 PWD=$(pwd)
 godir=${PWD/${GOPATH}\/src\//}
@@ -62,7 +66,7 @@ for package in "${PACKAGES}"; do
 		[[ ${GOOS} == "windows" ]] && export SUFFIX=".exe" || export SUFFIX=""
 		outfile="${BUILD_DIR}/${PWD##*/}_${GOOS}_${GOARCH}${SUFFIX}"
 
-		echo "Building for ${osarch} into ${outfile}" >&2
+		substep "Building for ${osarch} into ${outfile}"
 
 		go build \
 			-o "${outfile}" \
