@@ -31,7 +31,7 @@ go version
 step "Retrieve dependencies"
 pushd ${GOPATH}
 go get github.com/aktau/github-release
-go get github.com/mitchellh/gox
+go get github.com/Luzifer/gox
 popd
 
 step "Test code"
