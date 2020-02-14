@@ -1,3 +1,7 @@
+# 1.6.1 / 2020-02-14
+
+  * Fix Github access-token warning
+
 # 1.6.0 / 2019-07-10
 
   * Replace gox with simple loop (#5)
