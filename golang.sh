@@ -34,7 +34,8 @@ go version
 
 step "Retrieve dependencies"
 pushd ${GOPATH}
-go get github.com/Luzifer/github-release
+git clone https://github.com/Luzifer/github-release.git src/github.com/Luzifer/github-release
+GO111MODULE=on go install -mod=readonly github.com/Luzifer/github-release
 popd
 
 step "Test code"
