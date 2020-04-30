@@ -34,7 +34,7 @@ go version
 
 step "Retrieve dependencies"
 pushd ${GOPATH}
-go get github.com/vdice/github-release
+go get github.com/Luzifer/github-release
 popd
 
 step "Test code"
