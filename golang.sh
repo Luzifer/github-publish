@@ -33,9 +33,9 @@ MOD_MODE=${MOD_MODE:-}
 go version
 
 step "Retrieve dependencies"
-pushd ${GOPATH}
-git clone https://github.com/Luzifer/github-release.git src/github.com/Luzifer/github-release
-GO111MODULE=on go install github.com/Luzifer/github-release
+git clone "https://github.com/Luzifer/github-release.git" "${GOPATH}/src/github.com/Luzifer/github-release"
+pushd "${GOPATH}/src/github.com/Luzifer/github-release"
+GO111MODULE=on go install
 popd
 
 step "Test code"
