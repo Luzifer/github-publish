@@ -1,3 +1,7 @@
+# 1.7.0 / 2020-04-30
+
+  * Replace broken github-release fork
+
 # 1.6.1 / 2020-02-14
 
   * Fix Github access-token warning
