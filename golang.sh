@@ -29,6 +29,7 @@ BUILD_DIR=${BUILD_DIR:-.build}
 DRAFT=${DRAFT:-true}
 FORCE_SKIP_UPLOAD=${FORCE_SKIP_UPLOAD:-false}
 MOD_MODE=${MOD_MODE:-}
+NO_TESTS=${NO_TESTS:-false}
 
 go version
 
@@ -38,15 +39,17 @@ pushd "${GOPATH}/src/github.com/Luzifer/github-release"
 GO111MODULE=on go install
 popd
 
-step "Test code"
-go_params=()
+if [[ $NO_TESTS == false ]]; then
+	step "Test code"
+	go_params=()
 
-if [[ -n ${MOD_MODE} ]]; then
-	go_params+=(-mod="${MOD_MODE}")
+	if [[ -n ${MOD_MODE} ]]; then
+		go_params+=(-mod="${MOD_MODE}")
+	fi
+
+	go vet "${go_params[@]}" ${PACKAGES}
+	go test "${go_params[@]}" ${PACKAGES}
 fi
-
-go vet "${go_params[@]}" ${PACKAGES}
-go test "${go_params[@]}" ${PACKAGES}
 
 step "Cleanup build directory if present"
 rm -rf ${BUILD_DIR}
