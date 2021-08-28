@@ -5,7 +5,7 @@ curl -sL https://raw.githubusercontent.com/Luzifer/github-publish/master/SHA256S
 	grep "golang.sh" | sha256sum -c || exit 2
 
 (which zip 2>&1 1>/dev/null) || {
-	(which apk 2>&1 1>/dev/null) && apk add --update zip
+	(which apk 2>&1 1>/dev/null) && apk add --update gawk zip
 	(which apt-get 2>&1 1>/dev/null) && apt-get update && apt-get install -y zip
 }
 
