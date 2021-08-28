@@ -51,6 +51,8 @@ if [[ $NO_TESTS == false ]]; then
 	go test "${go_params[@]}" ${PACKAGES}
 fi
 
+changelog=$([ -f "${PWD}/History.md" ] && awk '/^#/ && ++c==2{exit}; /^#/f' "${PWD}/History.md" || echo "")
+
 step "Cleanup build directory if present"
 rm -rf ${BUILD_DIR}
 
@@ -125,14 +127,10 @@ fi
 
 if [[ ${DRAFT} == "true" ]]; then
 	step "Create a drafted release"
-	{
-		[ -f History.md ] && awk '/^#/ && ++c==2{exit}; /^#/f' History.md || echo ""
-	} | github-release release --user ${GHUSER} --repo ${REPO} --tag ${DEPLOYMENT_TAG} --name ${DEPLOYMENT_TAG} --description - --draft || true
+	echo "${changelog}" | github-release release --user ${GHUSER} --repo ${REPO} --tag ${DEPLOYMENT_TAG} --name ${DEPLOYMENT_TAG} --description - --draft || true
 else
 	step "Create a published release"
-	{
-		[ -f History.md ] && awk '/^#/ && ++c==2{exit}; /^#/f' History.md || echo ""
-	} | github-release release --user ${GHUSER} --repo ${REPO} --tag ${DEPLOYMENT_TAG} --name ${DEPLOYMENT_TAG} --description - || true
+	echo "${changelog}" | github-release release --user ${GHUSER} --repo ${REPO} --tag ${DEPLOYMENT_TAG} --name ${DEPLOYMENT_TAG} --description - || true
 fi
 
 step "Upload build assets"
