@@ -125,10 +125,14 @@ fi
 
 if [[ ${DRAFT} == "true" ]]; then
 	step "Create a drafted release"
-	github-release release --user ${GHUSER} --repo ${REPO} --tag ${DEPLOYMENT_TAG} --name ${DEPLOYMENT_TAG} --draft || true
+	{
+		[ -f History.md ] && awk '/^#/ && ++c==2{exit}; /^#/f' History.md || echo ""
+	} | github-release release --user ${GHUSER} --repo ${REPO} --tag ${DEPLOYMENT_TAG} --name ${DEPLOYMENT_TAG} --description - --draft || true
 else
 	step "Create a published release"
-	github-release release --user ${GHUSER} --repo ${REPO} --tag ${DEPLOYMENT_TAG} --name ${DEPLOYMENT_TAG} || true
+	{
+		[ -f History.md ] && awk '/^#/ && ++c==2{exit}; /^#/f' History.md || echo ""
+	} | github-release release --user ${GHUSER} --repo ${REPO} --tag ${DEPLOYMENT_TAG} --name ${DEPLOYMENT_TAG} --description - || true
 fi
 
 step "Upload build assets"
