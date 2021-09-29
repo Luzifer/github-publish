@@ -51,7 +51,7 @@ if [[ $NO_TESTS == false ]]; then
 	go test "${go_params[@]}" ${PACKAGES}
 fi
 
-changelog=$([ -f "${PWD}/History.md" ] && awk '/^#/ && ++c==2{exit}; /^#/f' "${PWD}/History.md" || echo "")
+changelog=$([ -f "${PWD}/History.md" ] && awk '/^#/ && ++c==2{exit}; /^#/f' "${PWD}/History.md" | tail -n +2 || echo "")
 
 step "Cleanup build directory if present"
 rm -rf ${BUILD_DIR}
