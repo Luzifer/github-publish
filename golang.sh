@@ -51,7 +51,7 @@ trap "rm -rf ${tool_gopath}" EXIT
 substep "Install github-release"
 GOPATH=${tool_gopath} go install \
   "${go_params}" \
-  github.com/Luzifer/github-release@master
+  github.com/Luzifer/github-release@3a6db3f4eb5d
 
 if [[ $NO_TESTS == false ]]; then
   step "Test code"
