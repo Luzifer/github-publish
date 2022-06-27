@@ -19,7 +19,7 @@ function substep() {
 required_tools=(go sha256sum tar zip)
 
 for tool in "${required_tools[@]}"; do
-  (command -v apk 2>&1 1>/dev/null) || {
+  (command -v ${tool} 2>&1 1>/dev/null) || {
     log "Missing tool '${tool}'"
     exit 1
   }
