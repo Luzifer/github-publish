@@ -4,11 +4,6 @@ set -euo pipefail
 curl -sL https://raw.githubusercontent.com/Luzifer/github-publish/master/SHA256SUMS |
   grep "golang.sh" | sha256sum -c || exit 2
 
-(which zip 2>&1 1>/dev/null) || {
-  (which apk 2>&1 1>/dev/null) && apk add --update gawk zip
-  (which apt-get 2>&1 1>/dev/null) && apt-get update && apt-get install -y zip
-}
-
 function log() {
   echo "${@}" >&2
 }
@@ -20,6 +15,15 @@ function step() {
 function substep() {
   log "======> $@..."
 }
+
+required_tools=(go sha256sum tar zip)
+
+for tool in "${required_tools[@]}"; do
+  (command -v apk 2>&1 1>/dev/null) || {
+    log "Missing tool '${tool}'"
+    exit 1
+  }
+done
 
 VERSION=$(git describe --tags --always || echo "dev")
 PWD=$(pwd)
@@ -77,8 +81,9 @@ for package in "${PACKAGES[@]}"; do
     export GOOS=${osarch%%/*}
     export GOARCH=${osarch##*/}
 
-    [[ ${GOOS} == "windows" ]] && suffix=".exe" || suffix=""
-    outfile="${BUILD_DIR}/${package##*/}_${GOOS}_${GOARCH}${suffix}"
+    [[ $GOOS == "windows" ]] && suffix=".exe" || suffix=""
+    [[ $package == '.' ]] && bname="${PWD##*/}" || bname="${package##*/}"
+    outfile="${BUILD_DIR}/${bname}_${GOOS}_${GOARCH}${suffix}"
 
     substep "Build for ${osarch} into ${outfile}"
 
